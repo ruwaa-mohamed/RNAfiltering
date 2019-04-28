@@ -45,8 +45,8 @@ def len_filter(reads, min_len):
 ##    init_len=int(r.description.split('length=')[1])
     return (r for r in reads if len(r)>= (min_len*int(r.description.split('length=')[1])))
 
-def trim_adap(reads, adapter=""):
-    if adapter="":
+def trim_adapter(reads, adapter=""):
+    if adapter=="":
         return reads
     for read in reads:
         if read.seq.find(adapter)==0:
@@ -54,14 +54,24 @@ def trim_adap(reads, adapter=""):
         else:
             yield read
 
-def leading(reads):
-    pass
+def leading(reads, min_score=15):
+    for read in reads:
+        qual = read.letter_annotations["phred_quality"]
+        for i in range(len(qual)):
+            if qual[i]>= min_score:
+                break
+        yield read[i:]
 
 def trailing(reads):
-    pass
+    for read in reads:
+        qual = read.letter_annotations["phred_quality"]
+        for i in range(len(qual)-1,-1,-1):
+            if qual[i]>= min_score:
+                break
+        yield read[:i]
 
 
-def main(fq, adapt, avg_qual=20, min_len=0.65):
+def main(fq, adapt, avg_qual=20, min_len=0.65, min_score=15):
     # parse the fastq file
     reads = SeqIO.parse(fq, "fastq")
     # initial stats
@@ -71,10 +81,10 @@ def main(fq, adapt, avg_qual=20, min_len=0.65):
     # parse the file again
     reads = SeqIO.parse(fq, "fastq")
     # adapter removal
-    no_adapt = trim_adap(reads, adapt)
+    no_adapter = trim_adapter(reads, adapt)
     # leading and trailing
-    trim_lead = leading(no_adapt)
-    trim_trail = trailing(trim_lead)
+    trim_lead = leading(no_adapter, min_score)
+    trim_trail = trailing(trim_lead, min_score)
     # average quality filtering
     avg_qual_filter = quality_filter(trim_trail, avg_qual)
     # min length filtering
@@ -90,10 +100,8 @@ def main(fq, adapt, avg_qual=20, min_len=0.65):
 
 ### Testing
 fq = 'SRR2079499_1.fastq'
-adapt = "AGGCCTGTCTCCTCTGAGTGATTGAC"
+adapter = "AGGCCTGTCTCCTCTGAGTGATTGAC"
 ##main(fq, adapt)
 reads = SeqIO.parse(fq, "fastq")
 get_stats(reads, "Raw")
 reads = SeqIO.parse(fq, "fastq")
-new_reads=quality_filter(reads, qual=20)
-get_stats(reads, "Quality Filtered")
