@@ -43,8 +43,9 @@ def get_stats(reads, state):
 def quality_filter(reads, qual=20):
     return (r for r in reads if int(statistics.mean(r.letter_annotations["phred_quality"])) > qual)
 
-def len_filter(reads):
-    pass
+def len_filter(reads, min_len):
+##    init_len=int(r.description.split('length=')[1])
+    return (r for r in reads if len(r)>= (min_len*int(r.description.split('length=')[1])))
 
 def trim_adap(reads, adapter=""):
     for read in reads:
@@ -60,7 +61,7 @@ def trailing(reads):
     pass
 
 
-def main(fq, adapt, avg_qual=20, min_length=15):
+def main(fq, adapt, avg_qual=20, min_len=0.65):
     # parse the fastq file
     reads = SeqIO.parse(fq, "fastq")
     # initial stats
@@ -78,7 +79,7 @@ def main(fq, adapt, avg_qual=20, min_length=15):
     # average quality filtering
     avg_qual_filter = quality_filter(trim_trail, avg_qual)
     # min length filtering
-    min_len_filter = len_filter(avg_qual_filter, min_length)
+    min_len_filter = len_filter(avg_qual_filter, min_len)
 
     # save to the output
     new_fq = "filtered_" + fq
@@ -95,3 +96,6 @@ adapt = "AGGCCTGTCTCCTCTGAGTGATTGAC"
 ##main(fq, adapt)
 reads = SeqIO.parse(fq, "fastq")
 get_stats(reads, "Raw")
+reads = SeqIO.parse(fq, "fastq")
+new_reads=quality_filter(reads, qual=20)
+get_stats(reads, "Quality Filtered")
