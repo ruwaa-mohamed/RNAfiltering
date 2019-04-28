@@ -29,15 +29,13 @@ def get_stats(reads, state):
         sizes.append(len(r.seq))
         GC_cont.append(GC(r.seq))
         avg_qual.append(statistics.mean(r.letter_annotations["phred_quality"]))
-##    sizes = [len(r.seq) for r in reads]
-##    GC_cont = [GC(r.seq) for r in reads]
     print("Total reads: %i" % len(sizes))
     print("Mean read length: %i" % statistics.mean(sizes))
     print("Max. read length: %i" % max(sizes))
     print("Min. read length: %i" % min(sizes))
     print("GC content: %i" % statistics.mean(GC_cont))
     print()
-    graphing(GC_cont, avg_qual, state)
+##    graphing(GC_cont, avg_qual, state)
 
 
 def quality_filter(reads, qual=20):
@@ -48,6 +46,8 @@ def len_filter(reads, min_len):
     return (r for r in reads if len(r)>= (min_len*int(r.description.split('length=')[1])))
 
 def trim_adap(reads, adapter=""):
+    if adapter="":
+        return reads
     for read in reads:
         if read.seq.find(adapter)==0:
             yield read[len(adapter):]
@@ -67,7 +67,6 @@ def main(fq, adapt, avg_qual=20, min_len=0.65):
     # initial stats
     print("Statistics of the Raw reads:")
     get_stats(reads, "Raw")
-    # graphing?
 
     # parse the file again
     reads = SeqIO.parse(fq, "fastq")
@@ -88,9 +87,8 @@ def main(fq, adapt, avg_qual=20, min_len=0.65):
     final_reads = SeqIO.parse(new_fq, "fastq")
     print("Statistics of the processed reads:")
     get_stats(final_reads, "Final")
-    # graphing?
 
-###Testing
+### Testing
 fq = 'SRR2079499_1.fastq'
 adapt = "AGGCCTGTCTCCTCTGAGTGATTGAC"
 ##main(fq, adapt)
