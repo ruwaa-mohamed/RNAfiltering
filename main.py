@@ -6,6 +6,11 @@ from Bio.SeqUtils import GC
 from matplotlib import pyplot as plt
 
 def graphing(GC_cont, avg_qual, state):
+    '''
+    Input: 2 lists (GC content per read, and average quality score per read).
+    Function: 2 histograms are created, one for average quality score per read and the other is GC content of the reads.
+    Output: No return.
+    '''
     plt.rcParams.update({'font.size': 24})
     plt.figure(1)
     plt.hist(avg_qual)
@@ -22,6 +27,11 @@ def graphing(GC_cont, avg_qual, state):
 
 
 def get_stats(reads, state):
+    '''
+    Input:
+    Function:
+    Output: No return.
+    '''
     sizes = []
     GC_cont = []
     avg_qual = []
@@ -39,13 +49,28 @@ def get_stats(reads, state):
 
 
 def quality_filter(reads, qual=20):
+    '''
+    Input:
+    Function:
+    Output: 
+    '''
     return (r for r in reads if int(statistics.mean(r.letter_annotations["phred_quality"])) > qual)
 
 def len_filter(reads, min_len):
-##    init_len=int(r.description.split('length=')[1])
+    '''
+    Input:
+    Function:
+    Output: 
+    '''
+    ##init_len=int(r.description.split('length=')[1])
     return (r for r in reads if len(r)>= (min_len*int(r.description.split('length=')[1])))
 
 def trim_adapter(reads, adapter=""):
+    '''
+    Input:
+    Function:
+    Output: 
+    '''
     if adapter=="":
         return reads
     for read in reads:
@@ -55,6 +80,11 @@ def trim_adapter(reads, adapter=""):
             yield read
 
 def leading(reads, min_score=15):
+    '''
+    Input:
+    Function:
+    Output: 
+    '''
     for read in reads:
         qual = read.letter_annotations["phred_quality"]
         for i in range(len(qual)):
@@ -63,6 +93,11 @@ def leading(reads, min_score=15):
         yield read[i:]
 
 def trailing(reads):
+    '''
+    Input:
+    Function:
+    Output: 
+    '''
     for read in reads:
         qual = read.letter_annotations["phred_quality"]
         for i in range(len(qual)-1,-1,-1):
@@ -72,6 +107,11 @@ def trailing(reads):
 
 
 def main(fq, adapt, avg_qual=20, min_len=0.65, min_score=15):
+    '''
+    Input:
+    Function:
+    Output: 
+    '''
     # parse the fastq file
     reads = SeqIO.parse(fq, "fastq")
     # initial stats
