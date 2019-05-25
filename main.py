@@ -33,6 +33,8 @@ def get_args():
     return arguments
 # ----------------------------------------------------------------------
 
+def download_sample(ID):
+    pass
 
 def graphing(GC_cont, avg_qual, state):
     '''
@@ -40,19 +42,20 @@ def graphing(GC_cont, avg_qual, state):
     Function: 2 histograms are created, one for average quality score per read and the other is GC content of the reads.
     Output: No return.
     '''
-    plt.rcParams.update({'font.size': 24})
-    plt.figure(1)
+    plt.rcParams.update({'font.size': 12})
+    plt.figure()
     plt.hist(avg_qual)
     plt.xlabel("Average Quality Score per Read")
     plt.ylabel("Number of Reads")
-    plt.title(state + " Reads Averag Quality Score")
+    plt.title(state + " Reads Average Quality Score")
+    plt.savefig(state+'_1.png')
 
-    plt.figure(2)
+    plt.figure()
     plt.hist(GC_cont)
     plt.xlabel("Average GC content per Read")
     plt.ylabel("Number of Reads")
-    plt.title(state+ " Reads Averag GC Content")
-    plt.show()
+    plt.title(state+ " Reads Average GC Content")
+    plt.savefig(state+'_2.png')
 
 
 def get_stats(reads, state):
@@ -68,13 +71,14 @@ def get_stats(reads, state):
         sizes.append(len(r.seq))
         GC_cont.append(GC(r.seq))
         avg_qual.append(statistics.mean(r.letter_annotations["phred_quality"]))
-    print("Total reads: %i" % len(sizes))
-    print("Mean read length: %i" % statistics.mean(sizes))
-    print("Max. read length: %i" % max(sizes))
-    print("Min. read length: %i" % min(sizes))
-    print("GC content: %i" % statistics.mean(GC_cont))
-    print()
-##    graphing(GC_cont, avg_qual, state)
+    d = {}
+    d['Total reads'] = len(sizes)
+    d['Mean read length'] = statistics.mean(sizes)
+    d['Max. read length'] = max(sizes)
+    d['Min. read length'] = min(sizes)
+    d['GC content'] = statistics.mean(GC_cont)
+    graphing(GC_cont, avg_qual, state)
+    return d
 
 
 def quality_filter(reads, qual=20):
@@ -121,7 +125,7 @@ def leading(reads, min_score=15):
                 break
         yield read[i:]
 
-def trailing(reads):
+def trailing(reads, min_score=15):
     '''
     Input:
     Function:
@@ -135,22 +139,27 @@ def trailing(reads):
         yield read[:i]
 
 
-def main(adapt, avg_qual=20, min_len=0.65, min_score=15):
+def main():
     '''
     Input:
     Function:
     Output: 
     '''
+    
+    # get the values from the argparse function
     fq = args['P']
     if fq == '':
         fq = download_sample(args['I'])
-    
+    adapt = args['A']
+    avg_qual = args['read_qual']
+    min_len = args['read_len']
+    min_score = args['base_qual']
     
     # parse the fastq file
     reads = SeqIO.parse(fq, "fastq")
     # initial stats
     print("Statistics of the Raw reads:")
-    get_stats(reads, "Raw")
+    d1 = get_stats(reads, "Raw")
 
     # parse the file again
     reads = SeqIO.parse(fq, "fastq")
@@ -170,7 +179,7 @@ def main(adapt, avg_qual=20, min_len=0.65, min_score=15):
     # final stats
     final_reads = SeqIO.parse(new_fq, "fastq")
     print("Statistics of the processed reads:")
-    get_stats(final_reads, "Final")
+    d2 = get_stats(final_reads, "Final")
 
 ### Testing
 fq = 'SRR2079499_1.fastq'
