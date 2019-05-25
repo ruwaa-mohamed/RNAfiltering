@@ -1,9 +1,38 @@
+import argparse
 import statistics
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
 from Bio.SeqUtils import GC
 from matplotlib import pyplot as plt
+
+args = None
+
+# ----------------------------------------------------------------------
+def get_args():
+	"""
+	
+	"""
+    parser = argparse.ArgumentParser(
+		description="RNA filtering tool that removes adapters, trims low quality bases from both ends, and filters low qiuality read and very short reads.",
+		epilog="Example:\npython RNAfilter.py [-P <path> | -I <str:ID>] --read_qual <int (20)> --base_qual <int (15)> --read_len <float (0.65)> -A <str (ACGT)>"
+    )
+
+    # Arguments
+    # input Run ID or FASTQ file local path
+    parser.add_argument('-I', help='ID of the Run from NCBI', default='', metavar='<str:ID>')
+    parser.add_argument('-P', help='Local path of the FASTQ file uncompressed', default='', metavar='<path>')
+
+    # Quality measures needed
+    parser.add_argument('--read_qual', help='the minimum average read quality score to filter out the read.', default=20, metavar='<int>')
+    parser.add_argument('--base_qual', help='the minimum base quality score to trim the base from both ends.', default=15, metavar='<int>')
+    parser.add_argument('--read_len', help='the minimum accepted fraction of the trimmed read to be considered in the output.', default=0.65, metavar='<float>')
+    parser.add_argument('-A', help='The adapter sequence to be trimmed from the beginning of the read.', default='', metavar='<str>')
+    
+    arguments = vars(parser.parse_args())
+    return arguments
+# ----------------------------------------------------------------------
+
 
 def graphing(GC_cont, avg_qual, state):
     '''
@@ -106,12 +135,17 @@ def trailing(reads):
         yield read[:i]
 
 
-def main(fq, adapt, avg_qual=20, min_len=0.65, min_score=15):
+def main(adapt, avg_qual=20, min_len=0.65, min_score=15):
     '''
     Input:
     Function:
     Output: 
     '''
+    fq = args['P']
+    if fq == '':
+        fq = download_sample(args['I'])
+    
+    
     # parse the fastq file
     reads = SeqIO.parse(fq, "fastq")
     # initial stats
@@ -145,3 +179,9 @@ adapter = "AGGCCTGTCTCCTCTGAGTGATTGAC"
 reads = SeqIO.parse(fq, "fastq")
 get_stats(reads, "Raw")
 reads = SeqIO.parse(fq, "fastq")
+
+#------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+	args = get_args()
+	main()
