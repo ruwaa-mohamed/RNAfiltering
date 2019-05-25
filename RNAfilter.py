@@ -10,27 +10,27 @@ args = None
 
 # ----------------------------------------------------------------------
 def get_args():
-	"""
+        """
 	
 	"""
-    parser = argparse.ArgumentParser(
-		description="RNA filtering tool that removes adapters, trims low quality bases from both ends, and filters low qiuality read and very short reads.",
-		epilog="Example:\npython RNAfilter.py [-P <path> | -I <str:ID>] --read_qual <int (20)> --base_qual <int (15)> --read_len <float (0.65)> -A <str (ACGT)>"
-    )
+        parser = argparse.ArgumentParser(
+                description="RNA filtering tool that removes adapters, trims low quality bases from both ends, and filters low qiuality read and very short reads.",
+                epilog="Example:\npython RNAfilter.py [-P <path> | -I <str:ID>] --read_qual <int (20)> --base_qual <int (15)> --read_len <float (0.65)> -A <str (ACGT)>"
+                )
 
-    # Arguments
-    # input Run ID or FASTQ file local path
-    parser.add_argument('-I', help='ID of the Run from NCBI', default='', metavar='<str:ID>')
-    parser.add_argument('-P', help='Local path of the FASTQ file uncompressed', default='', metavar='<path>')
+        # Arguments
+        # input Run ID or FASTQ file local path
+        parser.add_argument('-I', help='ID of the Run from NCBI', default='', metavar='<str:ID>')
+        parser.add_argument('-P', help='Local path of the FASTQ file uncompressed', default='', metavar='<path>')
 
-    # Quality measures needed
-    parser.add_argument('--read_qual', help='the minimum average read quality score to filter out the read.', default=20, metavar='<int>')
-    parser.add_argument('--base_qual', help='the minimum base quality score to trim the base from both ends.', default=15, metavar='<int>')
-    parser.add_argument('--read_len', help='the minimum accepted fraction of the trimmed read to be considered in the output.', default=0.65, metavar='<float>')
-    parser.add_argument('-A', help='The adapter sequence to be trimmed from the beginning of the read.', default='', metavar='<str>')
-    
-    arguments = vars(parser.parse_args())
-    return arguments
+        # Quality measures needed
+        parser.add_argument('--read_qual', help='the minimum average read quality score to filter out the read.', default=20, metavar='<int>')
+        parser.add_argument('--base_qual', help='the minimum base quality score to trim the base from both ends.', default=15, metavar='<int>')
+        parser.add_argument('--read_len', help='the minimum accepted fraction of the trimmed read to be considered in the output.', default=0.65, metavar='<float>')
+        parser.add_argument('-A', help='The adapter sequence to be trimmed from the beginning of the read.', default='', metavar='<str>')
+
+        arguments = vars(parser.parse_args())
+        return arguments
 # ----------------------------------------------------------------------
 
 def download_sample(ID):
