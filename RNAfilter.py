@@ -160,88 +160,87 @@ def trailing(reads, min_score=15):
         yield read[:i]
 
 def report(d1, d2):
-'''
-creates the quality control report from the statistics generated un the get_stats() and graphing() functions. no return but a pdf is created in the work directory.
-'''
-    # create pdf file object
-    pdf = FPDF()
-    pdf = FPDF('P', 'mm', 'A4')
-    pdf.add_page()
-    pdf.set_font('Times', 'B', 16)
-    pdf.cell(60)
-    pdf.cell(75, 10, "Report of project 8", 0, 1, 'C')
-    pdf.cell(90, 10, " ", 0, 2, 'C')
+        '''
+        creates the quality control report from the statistics generated un the get_stats() and graphing() functions. no return but a pdf is created in the work directory.
+        '''
+        # create pdf file object
+        pdf = FPDF()
+        pdf = FPDF('P', 'mm', 'A4')
+        pdf.add_page()
+        pdf.set_font('Times', 'B', 16)
+        pdf.cell(60)
+        pdf.cell(75, 10, "Report of project 8", 0, 1, 'C')
+        pdf.cell(90, 10, " ", 0, 2, 'C')
 
-    # specify the column width of the table
-    epw = pdf.w -2*pdf.l_margin
-    col_width =epw/3
+        # specify the column width of the table
+        epw = pdf.w -2*pdf.l_margin
+        col_width =epw/3
 
-    # the header of the table
-    pdf.set_font('Times', 'B', 12)
-    pdf.cell(col_width, 10, 'Parameters', 1, 0, 'C')
-    pdf.cell(col_width, 10, 'Raw Data', 1, 0, 'C')
-    pdf.cell(col_width, 10, 'Processed Data', 1, 1, 'C')
+        # the header of the table
+        pdf.set_font('Times', 'B', 12)
+        pdf.cell(col_width, 10, 'Parameters', 1, 0, 'C')
+        pdf.cell(col_width, 10, 'Raw Data', 1, 0, 'C')
+        pdf.cell(col_width, 10, 'Processed Data', 1, 1, 'C')
 
-    # the rows of the table from the two dictionaries previously created
-    pdf.set_font('Times', '', 12)
-    for key in d1.keys():
-        pdf.cell(col_width, 10, str(key), 1, 0, 'C')
-        pdf.cell(col_width, 10, str(d1[key]), 1, 0, 'C')
-        pdf.cell(col_width, 10, str(d2[key]), 1, 1, 'C')
-    pdf.cell(90, 10, " ", 0, 2, 'C')
+        # the rows of the table from the two dictionaries previously created
+        pdf.set_font('Times', '', 12)
+        for key in d1.keys():
+                pdf.cell(col_width, 10, str(key), 1, 0, 'C')
+                pdf.cell(col_width, 10, str(d1[key]), 1, 0, 'C')
+                pdf.cell(col_width, 10, str(d2[key]), 1, 1, 'C')
+                pdf.cell(90, 10, " ", 0, 2, 'C')
 
-    # adding the four histograms
-    pdf.image('Raw_1.png', x=None, y=100, w=100, h=0, type='', link='')
-    pdf.image('Final_1.png', x=110, y=100, w=100, h=0, type='', link='')
-    pdf.image('Raw_2.png', x=None, y=180, w=100, h=0, type='', link='')
-    pdf.image('Final_2.png', x=110, y=180, w=100, h=0, type='', link='')
-    pdf.output('Quality control report.pdf', 'F')
-
+        # adding the four histograms
+        pdf.image('Raw_1.png', x=None, y=100, w=100, h=0, type='', link='')
+        pdf.image('Final_1.png', x=110, y=100, w=100, h=0, type='', link='')
+        pdf.image('Raw_2.png', x=None, y=180, w=100, h=0, type='', link='')
+        pdf.image('Final_2.png', x=110, y=180, w=100, h=0, type='', link='')
+        pdf.output('Quality control report.pdf', 'F')
 
 
 def main():
-    '''
-this is the main function that orchestrates the whole work pipeline
-    '''
-    
-    # get the values from the argparse function
-    fq = args['P']
-    if fq == '':
-        fq = download_sample(args['I'])
-    adapt = args['A']
-    avg_qual = args['read_qual']
-    min_len = args['read_len']
-    min_score = args['base_qual']
+        '''
+        this is the main function that orchestrates the whole work pipeline
+        '''
 
-    # parse the fastq file
-    reads = SeqIO.parse(fq, "fastq")
-    # initial stats
-    print("Statistics of the Raw reads:")
-    d1 = get_stats(reads, "Raw")
-    print(d1)
+        # get the values from the argparse function
+        fq = args['P']
+        if fq == '':
+                fq = download_sample(args['I'])
+        adapt = args['A']
+        avg_qual = args['read_qual']
+        min_len = args['read_len']
+        min_score = args['base_qual']
 
-    # parse the file again
-    reads = SeqIO.parse(fq, "fastq")
-    # adapter removal
-    no_adapter = trim_adapter(reads, adapt)
-    # leading and trailing
-    trim_lead = leading(no_adapter, min_score)
-    trim_trail = trailing(trim_lead, min_score)
-    # average quality filtering
-    avg_qual_filter = quality_filter(trim_trail, avg_qual)
-    # min length filtering
-    min_len_filter = len_filter(avg_qual_filter, min_len)
+        # parse the fastq file
+        reads = SeqIO.parse(fq, "fastq")
+        # initial stats
+        print("Statistics of the Raw reads:")
+        d1 = get_stats(reads, "Raw")
+        print(d1)
 
-    # save to the output
-    new_fq = "filtered_" + fq
-    SeqIO.write(min_len_filter, new_fq , 'fastq')
-    # final stats
-    final_reads = SeqIO.parse(new_fq, "fastq")
-    print("Statistics of the processed reads:")
-    d2 = get_stats(final_reads, "Final")
-    print(d2)
+        # parse the file again
+        reads = SeqIO.parse(fq, "fastq")
+        # adapter removal
+        no_adapter = trim_adapter(reads, adapt)
+        # leading and trailing
+        trim_lead = leading(no_adapter, min_score)
+        trim_trail = trailing(trim_lead, min_score)
+        # average quality filtering
+        avg_qual_filter = quality_filter(trim_trail, avg_qual)
+        # min length filtering
+        min_len_filter = len_filter(avg_qual_filter, min_len)
 
-    report(d1, d2)
+        # save to the output
+        new_fq = "filtered_" + fq
+        SeqIO.write(min_len_filter, new_fq , 'fastq')
+        # final stats
+        final_reads = SeqIO.parse(new_fq, "fastq")
+        print("Statistics of the processed reads:")
+        d2 = get_stats(final_reads, "Final")
+        print(d2)
+
+        report(d1, d2)
 
 ### Testing
 ##fq = 'SRR2079499_1.fastq'
