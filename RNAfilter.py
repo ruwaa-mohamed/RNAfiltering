@@ -35,14 +35,6 @@ def get_args():
         return arguments
 # ----------------------------------------------------------------------
 
-def download_sample(ID):
-        '''
-        download_sample() function takes an input NCBI-SRA Run ID and download the sample in FASTQ format in the current working directory.
-        No outpyt is expected from this function.
-        used libraries: 
-        '''
-        pass
-
 def graphing(GC_cont, avg_qual, state):
     '''
     Input: 2 lists (GC content per read, and average quality score per read).
