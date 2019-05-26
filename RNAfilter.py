@@ -12,18 +12,18 @@ args = None
 # ----------------------------------------------------------------------
 def get_args():
         """
-	get_args() function defines the arguments the tha user will provide for the tool. Note that all arguments are optional but the tool will not work unless either -I or -P is used.
+	get_args() function defines the arguments the tha user will provide for the tool.
+	Note that all arguments are optional except the input FASTQ file with argument -F.
 	used libraries: argparse
 	"""
         parser = argparse.ArgumentParser(
                 description="RNA filtering tool that removes adapters, trims low quality bases from both ends, and filters low qiuality read and very short reads.",
-                epilog="Example:\npython RNAfilter.py [-P <path> | -I <str:ID>] --read_qual <int (20)> --base_qual <int (15)> --read_len <float (0.65)> -A <str (ACGT)>"
+                epilog="Example:\npython RNAfilter.py -F <path> --read_qual <int (20)> --base_qual <int (15)> --read_len <float (0.65)> -A <str (ACGT)>"
                 )
 
         # Arguments
         # input Run ID or FASTQ file local path (one of them is required)
-        parser.add_argument('-I', help='ID of the Run from NCBI', default='', metavar='<str:ID>')
-        parser.add_argument('-P', help='Local path of the FASTQ file uncompressed', default='', metavar='<path>')
+        parser.add_argument('-F', help='Local path of the FASTQ file uncompressed', required=True, metavar='<path>')
 
         # Quality measures needed (all optional)
         parser.add_argument('--read_qual', help='the minimum average read quality score to filter out the read.', default=20, metavar='<int>')
@@ -204,9 +204,7 @@ def main():
         '''
 
         # get the values from the argparse function
-        fq = args['P']
-        if fq == '':
-                fq = download_sample(args['I'])
+        fq = args['F']
         adapt = args['A']
         avg_qual = args['read_qual']
         min_len = args['read_len']
