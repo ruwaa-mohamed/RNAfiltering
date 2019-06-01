@@ -198,9 +198,9 @@ def main():
         # get the values from the argparse function
         fq = args['F']
         adapt = args['A']
-        avg_qual = args['read_qual']
-        min_len = args['read_len']
-        min_score = args['base_qual']
+        avg_qual = int(args['read_qual'])
+        min_len = float(args['read_len'])
+        min_score = int(args['base_qual'])
 
         # parse the fastq file
         reads = SeqIO.parse(fq, "fastq")
