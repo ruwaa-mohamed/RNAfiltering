@@ -105,7 +105,7 @@ def len_filter(reads, min_len):
     ##init_len=int(r.description.split('length=')[1])
     return (r for r in reads if len(r)>= (min_len*int(r.description.split('length=')[1])))
 
-def trim_adapter(reads, adapter=""):
+def trim_adapter(reads, adapter=''):
     '''
     Input:  It takes a SeqRecord iterator object that contains all the reads as SeqRecords.
             the adapter is an optional argument that is set to empty string as default not trim anything if no adapter sequence is specified.
@@ -113,8 +113,6 @@ def trim_adapter(reads, adapter=""):
     Output: the same input SeqRecord iterator object but whenever a read has the adapter specified, the adapter is removed.
     used libraries: --
     '''
-    if adapter=="":
-        return reads
     for read in reads:
         if read.seq.find(adapter)==0:
             yield read[len(adapter):]
@@ -180,7 +178,6 @@ def report(d1, d2):
                 pdf.cell(col_width, 10, str(key), 1, 0, 'C')
                 pdf.cell(col_width, 10, str(d1[key]), 1, 0, 'C')
                 pdf.cell(col_width, 10, str(d2[key]), 1, 1, 'C')
-                pdf.cell(90, 10, " ", 0, 2, 'C')
 
         # adding the four histograms
         pdf.image('Raw_1.png', x=None, y=100, w=100, h=0, type='', link='')
@@ -239,5 +236,5 @@ def main():
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-	args = get_args()
-	main()
+        args = get_args()
+        main()
